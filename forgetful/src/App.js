@@ -1,20 +1,43 @@
-import React, { Component } from 'react';
-import './App.css';
-
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Forgetful</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
-}
-
-export default App;
+// ./express-server/app.js
+import express from 'express';
+import path from 'path';
+import bodyParser from 'body-parser';
+import logger from 'morgan';
+import mongoose from 'mongoose';
+import bb from 'express-busboy';
+// import routes
+import todoRoutes from './routes/todo.server.route';
+// define our app using express
+const app = express();
+// express-busboy to parse multipart/form-data
+bb.extend(app);
+// allow-cors
+app.use(function(req,res,next){
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+})
+// configure app
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended:true }));
+app.use(express.static(path.join(__dirname, 'public')));
+// set the port
+const port = process.env.PORT || 3001;
+// connect to database
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://localhost/mern-todo-app', {
+  useMongoClient: true,
+});
+app.use('/api', todoRoutes);
+app.get('/', (req,res) => {
+  return res.end('Api working');
+})
+// catch 404
+app.use((req, res, next) => {
+  res.status(404).send('<h2 align=center>Page Not Found!</h2>');
+});
+// start the server
+app.listen(port,() => {
+  console.log(`App Server Listening at ${port}`);
+});

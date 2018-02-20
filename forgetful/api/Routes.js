@@ -1,14 +1,14 @@
-const express = require('express');
+// ./express-server/routes/todo.server.route.js
+import express from 'express';
+//import controller file
+import * as todoController from '../controllers/todo.server.controller';
+// get an instance of express router
 const router = express.Router();
-
-//Router must require authorization validation
-
-//Router post for login
-
-//If username matches and password matches, allow access
-
-//Router use the User file
-
-//Throw error if unknown
-
-module.exports = router;
+router.route('/')
+     .get(todoController.getTodos)
+     .post(todoController.addTodo)
+     .put(todoController.updateTodo);
+router.route('/:id')
+      .get(todoController.getTodo)
+      .delete(todoController.deleteTodo);
+export default router;
