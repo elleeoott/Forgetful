@@ -79,4 +79,42 @@ router.delete('/task/:id', function(req, res, next){
     });
 });
 
+//Update one task using put
+
+router.put('/task/:id', function(req, res, next){
+
+    const task = req.body;
+    const updateTask = {};
+
+    if(task.isDone){
+
+        updateTask.isDone = task.isDone;
+    }
+
+    if(task.title){
+
+        updateTask.title = task.title;
+    }
+
+    if(!updateTask){
+
+        res.status(400);
+        res.json({
+
+            "error":"Bad request"
+        });
+    } else {
+
+        db.tasks.update({_id: mongojs.ObjectId(req.params.id)}, updateTask, {}, function(err, task){
+
+            if(err){
+    
+                res.send(err);
+            }
+    
+            res.json(task);
+        });
+    }
+});
+
 module.exports = router;
